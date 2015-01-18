@@ -74,12 +74,16 @@ $(SHAREDNAME): $(LDL) $(AMD) $(ECOS_OBJS)
 # ECOS tester
 TEST_OBJS = qcml_utils.o norm.o sq_norm.o sum_sq.o quad_over_lin.o inv_pos.o
 .PHONY: test
-test: ecostester ecos_bb_test
+test: ecostester ecos_bb_test ecos_exp_tester
+
 ecostester: test/ecostester.c $(TEST_OBJS) libecos.a
 	$(CC) $(CFLAGS) $(TEST_INCLUDES) -o $@ $^ $(LDFLAGS)
 
 ecos_bb_test: test/bb_test.c libecos_bb.a
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+
+ecos_exp_tester: test/ecos_exp_tester.c libecos.a
+	$(CC) $(CFLAGS) $(TEST_INCLUDES) -o $@ $^ $(LDFLAGS)
 
 %.o: test/generated/%.c test/generated/%.h
 	$(CC) $(CFLAGS) $(TEST_INCLUDES) -c $< -o $@
