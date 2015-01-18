@@ -279,7 +279,7 @@ void use_ruiz_equilibration(pwork *w)
         for(i = 0; i < w->C->nexc; i++) {
              total = 0.0;
              for(j = 0; j < 3; j++) {
-               total += w->Gtmp[ind + j];
+               total += Gtmp[ind + j];
              }
              for(j = 0; j < 3; j++) {
                Gtmp[ind + j] = total;
