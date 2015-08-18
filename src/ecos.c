@@ -213,8 +213,11 @@ idxint checkExitConditions(pwork* w, idxint mode)
         return ECOS_OPTIMAL + mode;
     }
 
-    /* Dual infeasible? */
-    else if( (w->info->dinfres != NAN) && (w->info->dinfres < feastol) ){
+    /* Dual infeasible? 
+     * To certify dual infeasibility we require that Ax=r1 and Gx+s=r2 be small, that tau->0 and that 
+     * c'x < 0 , dinfres is NAN if c'x >= 0  
+     */
+    else if( (w->info->dinfres != NAN) && (w->info->dinfres < feastol) && w->tau < feastol ){
 #if PRINTLEVEL > 0
         if( w->stgs->verbose ) {
             if( mode == 0) {
@@ -229,8 +232,11 @@ idxint checkExitConditions(pwork* w, idxint mode)
         return ECOS_DINF + mode;
     }
 
-    /* Primal infeasible? */
-    else if( (w->info->pinfres != NAN && w->info->pinfres < feastol) ||
+    /* Primal infeasible? 
+     * To certify primal infeasibility we require that A'y+z = pin_fres be small, that tau->0 that -b'y-h'z > 0 
+     * pinfres is NAN if -b'y-h'z <= 0.
+     * The second condition here triggers if both kappa and tau tend to zero*/
+    else if( (w->info->pinfres != NAN && w->info->pinfres < feastol && w->tau < w->stgs->feastol) ||
             ( w->tau < w->stgs->feastol && w->kap < w->stgs->feastol && w->info->pinfres < w->stgs->feastol) ){
 #if PRINTLEVEL > 0
         if( w->stgs->verbose ) {
@@ -516,8 +522,8 @@ void updateStatistics(pwork* w)
     info->expmu = info->expmu/(3.0*w->C->nexc);
 #endif
 	/* relative duality gap */
-	if( info->pcost < 0 ){ info->relgap = info->gap / (-info->pcost); }
-	else if( info->dcost > 0 ){ info->relgap = info->gap / info->dcost; }
+	if( info->pcost < 0 ){ info->relgap = info->gap / MAX(-info->pcost, 1.0); }
+	else if( info->dcost > 0 ){ info->relgap = info->gap / MAX(info->dcost, 1.0); }
 	else info->relgap = NAN;
 
 	/* residuals */
