@@ -6,7 +6,7 @@ default: all
 
 include ../../ecos.mk
 
-INCLUDES = -I../SuiteSparse_config -Iinclude
+INCLUDES = -Iinclude -I../SuiteSparse_config
 
 C = $(CC) $(CFLAGS) $(INCLUDES)
 
